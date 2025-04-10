@@ -1,0 +1,94 @@
+# INTERACTIVE-QUIZ-APPLIACATION
+module FIR_Filter (
+    input clk,
+    input signed [7:0] x_in,
+    output signed [7:0] y_out
+);
+
+reg signed [7:0] coeff[3:0] = {8'h02, 8'h04, 8'h04, 8'h02}; // Example coefficients
+reg signed [7:0] delay[3:0];
+
+integer i;
+always @(posedge clk) begin
+    for (i = 3; i > 0; i = i - 1)
+        delay[i] <= delay[i - 1];
+    delay[0] <= x_in;
+end
+
+assign y_out = coeff[0]*delay[0] + coeff[1]*delay[1] + coeff[2]*delay[2] + coeff[3]*delay[3];
+
+endmodule
+#Testbench
+`timescale 1ns / 1ps
+
+
+
+module FIR_Filter_tb;
+
+    reg clk;
+
+    reg signed [7:0] x_in;
+
+    wire signed [7:0] y_out;
+
+    
+
+    // Instantiate the FIR Filter module
+
+    FIR_Filter uut (
+
+        .clk(clk),
+
+        .x_in(x_in),
+
+        .y_out(y_out)
+
+    );
+
+    
+
+    // Generate clock signal
+
+    always #5 clk = ~clk; // 10ns period
+
+    
+
+    initial begin
+
+        // Initialize
+
+        clk = 0;
+
+        x_in = 0;
+
+        
+
+        // Monitor the signals
+
+        $monitor("Time=%0t | clk=%b, x_in=%d, y_out=%d", $time, clk, x_in, y_out);
+
+        
+
+        // Apply input samples
+
+        #10 x_in = 8'd10;
+
+        #10 x_in = 8'd20;
+
+        #10 x_in = 8'd30;
+
+        #10 x_in = 8'd40;
+
+        #10 x_in = 8'd50;
+
+        #10 x_in = 8'd0;  // Test impulse response
+
+        
+
+        // End Simulation
+
+        #50 $stop;
+
+    end
+
+endmodule
